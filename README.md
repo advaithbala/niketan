@@ -14,6 +14,12 @@ cd ~/.niketan
 
 Then open a new shell (or `source ~/.bashrc`) and run `n` to launch Neovim.
 
+### With a CLI agent
+
+```bash
+./bootstrap.sh --agent cursor
+```
+
 ### Without git
 
 ```bash
@@ -25,8 +31,9 @@ cd niketan-main
 ## Teardown
 
 ```bash
-./clean.sh                     # full teardown
-./clean.sh --keep-nvim-config  # keep ~/.config/nvim
+./clean.sh                          # full teardown
+./clean.sh --keep-nvim-config       # keep ~/.config/nvim
+./clean.sh --agent cursor           # also remove Cursor CLI
 ```
 
 Safe to re-run in either direction — bootstrap is idempotent, clean is idempotent.
@@ -44,6 +51,14 @@ Safe to re-run in either direction — bootstrap is idempotent, clean is idempot
 
 Everything lives under `~/.local` (`bin/`, `opt/`, `state/niketan/`).
 
+## CLI agents
+
+Agents are opt-in via `--agent <name>`. You can pass multiple `--agent` flags.
+
+| Agent | Command | What it does |
+|-------|---------|-------------|
+| `cursor` | `--agent cursor` | Installs the [Cursor](https://cursor.com) CLI |
+
 ## Repo layout
 
 ```
@@ -54,6 +69,7 @@ niketan/
 │   └── tmux.conf       # tmux configuration
 └── lib/
     ├── common.sh       # shared helpers (log, download, detect OS/arch/shell)
+    ├── agents.sh       # CLI agent install/clean (cursor, etc.)
     ├── neovim.sh       # neovim + kickstart install/clean
     ├── tools.sh        # ripgrep, fd, fzf install/clean
     ├── shell.sh        # env snippet + shell rc injection/removal

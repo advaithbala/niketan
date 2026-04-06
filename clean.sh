@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 # Undo everything bootstrap.sh did. Idempotent: safe to re-run.
-# Usage: ./clean.sh [--keep-nvim-config]
+#
+# Usage: ./clean.sh [--keep-nvim-config] [--agent <name>]
+#   --keep-nvim-config  Don't remove ~/.config/nvim
+#   --agent cursor      Also remove the Cursor CLI agent
 set -euo pipefail
 
 KEEP_NVIM_CONFIG=false
-for arg in "$@"; do
-  case "$arg" in
-    --keep-nvim-config) KEEP_NVIM_CONFIG=true ;;
-    *) echo "Unknown option: $arg" >&2; exit 1 ;;
+AGENTS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --keep-nvim-config) KEEP_NVIM_CONFIG=true; shift ;;
+    --agent)
+      [[ -n "${2:-}" ]] || { echo "Error: --agent requires a name" >&2; exit 1; }
+      AGENTS+=("$2"); shift 2 ;;
+    *)
+      echo "Unknown option: $1" >&2; exit 1 ;;
   esac
 done
 
@@ -18,6 +26,7 @@ source "$SCRIPT_DIR/lib/neovim.sh"
 source "$SCRIPT_DIR/lib/tools.sh"
 source "$SCRIPT_DIR/lib/shell.sh"
 source "$SCRIPT_DIR/lib/tmux.sh"
+source "$SCRIPT_DIR/lib/agents.sh"
 
 detect_os_arch 2>/dev/null || true
 
@@ -29,6 +38,10 @@ clean_env_snippet
 clean_tools
 clean_neovim
 clean_tmux_conf
+
+for agent in "${AGENTS[@]}"; do
+  clean_agent "$agent"
+done
 
 [[ -d "$STATE" ]] && rm -rf "$STATE" && log "Removed state dir $STATE"
 
