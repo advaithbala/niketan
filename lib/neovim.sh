@@ -52,7 +52,7 @@ install_kickstart_nvim() {
 }
 
 clean_neovim() {
-  rm -f "$BIN/nvim"
+  [[ -L "$BIN/nvim" || -f "$BIN/nvim" ]] && rm -f "$BIN/nvim" && log "Removed $BIN/nvim"
   for d in "$OPT"/nvim-linux-* "$OPT"/nvim-macos-* "$OPT/nvim-current"; do
     [[ -e "$d" ]] && rm -rf "$d" && log "Removed $d"
   done

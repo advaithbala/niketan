@@ -3,11 +3,24 @@
 
 write_env_snippet() {
   local f="$PREFIX/niketan-env.sh"
-  cat >"$f" <<EOF
+  cat >"$f" <<'SNIPPET'
 # Added by niketan bootstrap — prepend user-local tools
-export PATH="$BIN:\$PATH"
+export PATH="__BIN__:$PATH"
 alias n=nvim
-EOF
+
+# Prompt: user@host:/full/path$  (green user@host, blue path)
+# Uses only standard ANSI colors (no 256/truecolor assumptions).
+if [ -n "$ZSH_VERSION" ]; then
+  autoload -Uz colors && colors
+  setopt PROMPT_SUBST
+  PROMPT='%{$fg[green]%}%n@%m%{$reset_color%}:%{$fg[blue]%}%~%{$reset_color%}$ '
+elif [ -n "$BASH_VERSION" ]; then
+  PS1='\[\e[32m\]\u@\h\[\e[0m\]:\[\e[34m\]\w\[\e[0m\]\$ '
+fi
+SNIPPET
+
+  # Patch in the actual BIN path (written at install time)
+  sed -i.bak "s|__BIN__|$BIN|" "$f" && rm -f "${f}.bak"
   log "Wrote $f"
 }
 

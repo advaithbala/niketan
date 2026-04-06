@@ -32,6 +32,8 @@ clean_tmux_conf
 
 [[ -d "$STATE" ]] && rm -rf "$STATE" && log "Removed state dir $STATE"
 
+unalias n 2>/dev/null && log "Removed alias 'n'"
+
 log ""
 log "Done. Open a new shell to pick up the changes."
 log "The $BIN directory itself was left in place (other tools may use it)."
