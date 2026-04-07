@@ -5,7 +5,7 @@ NVIM_VER="${NVIM_VER:-0.11.0}"
 
 install_neovim() {
   local stamp="$STATE/nvim-${NVIM_VER}.ok"
-  [[ -f "$stamp" ]] && return 0
+  [[ -f "$stamp" && -x "$BIN/nvim" ]] && return 0
 
   local name url tgz extracted
   if [[ "$OS" == linux ]]; then
@@ -49,6 +49,18 @@ install_kickstart_nvim() {
   log "Cloning kickstart.nvim into $target ..."
   git clone --depth 1 https://github.com/nvim-lua/kickstart.nvim.git "$target"
   log "Kickstart installed. First ':Lazy' sync may take a minute."
+}
+
+install_nvim_folding() {
+  local target="${XDG_CONFIG_HOME:-$HOME/.config}/nvim/plugin"
+  local src="$NIKETAN_DIR/config/nvim/folding.lua"
+  [[ -f "$src" ]] || die "Missing $src"
+  mkdir -p "$target"
+  if [[ -f "$target/folding.lua" ]] && cmp -s "$src" "$target/folding.lua"; then
+    return 0
+  fi
+  cp "$src" "$target/folding.lua"
+  log "Installed Treesitter folding config to $target/folding.lua"
 }
 
 clean_neovim() {

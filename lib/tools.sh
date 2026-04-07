@@ -4,7 +4,7 @@
 install_ripgrep() {
   local ver="${RG_VER:-14.1.1}"
   local stamp="$STATE/rg-${ver}.ok"
-  [[ -f "$stamp" ]] && return 0
+  [[ -f "$stamp" && -x "$BIN/rg" ]] && return 0
 
   local triplet name url
   if [[ "$OS" == linux ]]; then
@@ -34,7 +34,7 @@ install_ripgrep() {
 install_fd() {
   local ver="${FD_VER:-10.2.0}"
   local stamp="$STATE/fd-${ver}.ok"
-  [[ -f "$stamp" ]] && return 0
+  [[ -f "$stamp" && -x "$BIN/fd" ]] && return 0
 
   local triplet name url
   if [[ "$OS" == linux ]]; then
@@ -65,7 +65,7 @@ install_fd() {
 install_fzf() {
   local dir="$OPT/fzf"
   local stamp="$STATE/fzf.ok"
-  [[ -f "$stamp" ]] && return 0
+  [[ -f "$stamp" && -x "$BIN/fzf" ]] && return 0
 
   if [[ -d "$dir/.git" ]]; then
     git -C "$dir" pull --ff-only || true

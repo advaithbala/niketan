@@ -47,6 +47,7 @@ Safe to re-run in either direction — bootstrap is idempotent, clean is idempot
 | fd | 10.2.0 | Fast file finder (`fd`) |
 | fzf | latest | Fuzzy finder |
 | kickstart.nvim | latest | Sane Neovim defaults with Telescope, LSP, Treesitter |
+| folding config | — | Treesitter-based code folding (`za` toggle, `zc` close, `zo` open) |
 | tmux.conf | — | Versioned tmux config (prefix `Ctrl+a`, vim keys, mouse) |
 
 Everything lives under `~/.local` (`bin/`, `opt/`, `state/niketan/`).
@@ -66,6 +67,8 @@ niketan/
 ├── bootstrap.sh        # orchestrator — install everything
 ├── clean.sh            # orchestrator — teardown everything
 ├── config/
+│   ├── nvim/
+│   │   └── folding.lua # Treesitter-based code folding
 │   └── tmux.conf       # tmux configuration
 └── lib/
     ├── common.sh       # shared helpers (log, download, detect OS/arch/shell)
