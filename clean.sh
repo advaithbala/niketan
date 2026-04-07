@@ -39,9 +39,11 @@ clean_tools
 clean_neovim
 clean_tmux_conf
 
-for agent in "${AGENTS[@]}"; do
-  clean_agent "$agent"
-done
+if ((${#AGENTS[@]} > 0)); then
+  for agent in "${AGENTS[@]}"; do
+    clean_agent "$agent"
+  done
+fi
 
 [[ -d "$STATE" ]] && rm -rf "$STATE" && log "Removed state dir $STATE"
 

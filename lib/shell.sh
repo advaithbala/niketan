@@ -8,6 +8,33 @@ write_env_snippet() {
 export PATH="__BIN__:$PATH"
 alias n=nvim
 
+# UTF-8: Catppuccin tmux / Nerd Font icons break without a UTF-8 locale (common on Ubuntu minimal/server).
+if command -v locale >/dev/null 2>&1; then
+  _niketan_lang="${LC_ALL:-${LANG:-}}"
+  case "$_niketan_lang" in
+    C|POSIX|'')
+      _niketan_lc=""
+      for _niketan_try in C.UTF-8 C.utf8 en_US.UTF-8 en_US.utf8; do
+        if locale -a 2>/dev/null | grep -Fx "$_niketan_try" >/dev/null 2>&1; then
+          _niketan_lc="$_niketan_try"
+          break
+        fi
+        _niketan_line=$(locale -a 2>/dev/null | grep -Fxi "$_niketan_try" | head -1 || true)
+        if [ -n "$_niketan_line" ]; then
+          _niketan_lc="$_niketan_line"
+          break
+        fi
+      done
+      if [ -n "$_niketan_lc" ]; then
+        export LANG="$_niketan_lc"
+        export LC_ALL="$_niketan_lc"
+      fi
+      unset _niketan_line
+      ;;
+  esac
+  unset _niketan_try _niketan_lc _niketan_lang
+fi
+
 # Prompt: user@host:/full/path$  (green user@host, blue path)
 # Uses only standard ANSI colors (no 256/truecolor assumptions).
 if [ -n "$ZSH_VERSION" ]; then

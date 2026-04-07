@@ -23,11 +23,13 @@ source "$SCRIPT_DIR/lib/common.sh"
 source "$SCRIPT_DIR/lib/neovim.sh"
 source "$SCRIPT_DIR/lib/tools.sh"
 source "$SCRIPT_DIR/lib/shell.sh"
+source "$SCRIPT_DIR/lib/fonts.sh"
 source "$SCRIPT_DIR/lib/tmux.sh"
 source "$SCRIPT_DIR/lib/agents.sh"
 
 mkdir -p "$BIN" "$OPT" "$STATE"
 detect_os_arch
+check_niketan_prereqs
 
 log "Installing niketan to PREFIX=$PREFIX (OS=$OS ARCH=$ARCH)"
 log ""
@@ -40,13 +42,18 @@ install_tree_sitter
 install_kickstart_nvim
 install_nvim_parsers
 install_nvim_folding
+patch_kickstart_for_niketan
+install_nerd_fonts
 install_tmux_conf
 write_env_snippet
 inject_shell_rc
 
-for agent in "${AGENTS[@]}"; do
-  install_agent "$agent"
-done
+# Empty "${AGENTS[@]}" under `set -u` errors on some Bash versions; guard instead.
+if ((${#AGENTS[@]} > 0)); then
+  for agent in "${AGENTS[@]}"; do
+    install_agent "$agent"
+  done
+fi
 
 log ""
 log "Done. Your shell rc ($SHELL_RC) has been updated."

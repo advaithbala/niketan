@@ -1,8 +1,10 @@
 # niketan
 
-Portable, user-local CLI development environment. No root required.
+Portable, user-local CLI development environment: everything niketan installs lands under `~/.local` (or `PREFIX`) without `sudo`.
 
-Installs **Neovim 0.11**, **ripgrep**, **fd**, **fzf**, and **kickstart.nvim** into `~/.local`, sets up your **tmux.conf**, detects your shell, and wires everything up automatically.
+Your OS image should already include **git**, **tmux**, **ncurses** (`infocmp`), **unzip**, and **curl** or **wget** — typical developer setups on macOS and Linux. Niketan does not run package managers for those.
+
+It installs **Neovim 0.11**, **ripgrep**, **fd**, **fzf**, and **kickstart.nvim** into `PREFIX`, sets up **tmux.conf**, detects your shell, and wires up your rc.
 
 ## Quick start
 

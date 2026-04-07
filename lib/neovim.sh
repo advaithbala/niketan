@@ -128,6 +128,83 @@ install_nvim_folding() {
   log "Installed Treesitter folding config to $target/folding.lua"
 }
 
+# Align kickstart.nvim with niketan: enable Nerd Font UI and Catppuccin Mocha (matches tmux).
+patch_kickstart_for_niketan() {
+  local init="${XDG_CONFIG_HOME:-$HOME/.config}/nvim/init.lua"
+  [[ -f "$init" ]] || return 0
+
+  if grep -qE '^vim\.g\.have_nerd_font = false$' "$init" 2>/dev/null; then
+    sed -i.bak 's/^vim\.g\.have_nerd_font = false$/vim.g.have_nerd_font = true/' "$init" && rm -f "${init}.bak"
+    log "Set vim.g.have_nerd_font = true in init.lua (use a Nerd Font in your terminal)."
+  fi
+
+  if grep -qF "# niketan: catppuccin+mocha" "$init" 2>/dev/null; then
+    return 0
+  fi
+  if ! grep -q "tokyonight-night" "$init" 2>/dev/null; then
+    log "Skipping Catppuccin kickstart patch — init.lua has no default tokyonight-night (custom config?)."
+    return 0
+  fi
+  command -v python3 >/dev/null 2>&1 || {
+    log "python3 not found — skipping Catppuccin theme patch. Install python3 or edit init.lua manually."
+    return 0
+  }
+
+  local msg
+  msg=$(
+    python3 - "$init" <<'PY'
+import pathlib
+import re
+import sys
+
+path = pathlib.Path(sys.argv[1])
+text = path.read_text()
+if "# niketan: catppuccin+mocha" in text:
+    sys.exit(0)
+pat = r"""  \{ -- You can easily change to a different colorscheme\.
+    -- Change the name of the colorscheme plugin below, and then
+    -- change the command in the config to whatever the name of that colorscheme is\.
+    --
+    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`\.
+    'folke/tokyonight\.nvim',
+    priority = 1000, -- Make sure to load this before all the other start plugins\.
+    config = function\(\)
+      ---@diagnostic disable-next-line: missing-fields
+      require\('tokyonight'\)\.setup \{
+        styles = \{
+          comments = \{ italic = false \}, -- Disable italics in comments
+        \},
+      \}
+
+      -- Load the colorscheme here\.
+      -- Like many other themes, this one has different styles, and you could load
+      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'\.
+      vim\.cmd\.colorscheme 'tokyonight-night'
+    end,
+  \},"""
+
+repl = """  { -- niketan: catppuccin+mocha (was kickstart default tokyonight)
+    'catppuccin/nvim',
+    name = 'catppuccin',
+    priority = 1000,
+    opts = { flavour = 'mocha' },
+    config = function()
+      require('catppuccin').setup({ flavour = 'mocha' })
+      vim.cmd.colorscheme 'catppuccin'
+    end,
+  },"""
+
+new, n = re.subn(pat, repl, text, count=1)
+if n != 1:
+    print("niketan: colorscheme patch skipped (kickstart init.lua layout changed)")
+else:
+    path.write_text(new)
+    print("niketan: replaced default Tokyo Night with Catppuccin mocha in init.lua")
+PY
+  ) || true
+  [[ -n "$msg" ]] && log "$msg"
+}
+
 clean_neovim() {
   [[ -L "$BIN/nvim" || -f "$BIN/nvim" ]] && rm -f "$BIN/nvim" && log "Removed $BIN/nvim"
   for d in "$OPT"/nvim-linux-* "$OPT"/nvim-macos-* "$OPT/nvim-current"; do

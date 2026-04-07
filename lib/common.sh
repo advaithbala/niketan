@@ -13,6 +13,17 @@ MARKER_END="# <<< niketan <<<"
 log() { printf '%s\n' "$*"; }
 die() { log "ERROR: $*" >&2; exit 1; }
 
+# Niketan assumes a normal developer OS image: git, tmux, ncurses (infocmp), unzip, and a HTTP client.
+# Everything else is installed under PREFIX without root.
+check_niketan_prereqs() {
+  command -v git >/dev/null 2>&1 || die "git is required"
+  command -v curl >/dev/null 2>&1 || command -v wget >/dev/null 2>&1 || die "curl or wget is required"
+  command -v unzip >/dev/null 2>&1 || die "unzip is required"
+  command -v bash >/dev/null 2>&1 || die "bash is required"
+  command -v tmux >/dev/null 2>&1 || die "tmux is required"
+  command -v infocmp >/dev/null 2>&1 || die "infocmp is required (ncurses terminfo database)"
+}
+
 download() {
   local url="$1" out="$2"
   if command -v curl >/dev/null 2>&1; then
