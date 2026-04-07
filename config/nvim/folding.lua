@@ -1,18 +1,24 @@
 -- Treesitter-based code folding.
 -- Uses expression folding backed by Treesitter so that folds follow the
 -- actual syntax tree (JSON objects/arrays, function bodies, if-blocks, etc.).
+-- Parsers are pre-compiled at bootstrap time (see install_nvim_parsers in
+-- lib/neovim.sh).  This file only needs to set fold options per buffer.
 
-vim.o.foldmethod = 'expr'
-vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-
--- Start with all folds open; press zc / zo / za to collapse / expand / toggle.
 vim.o.foldlevelstart = 99
-
--- Show a concise fold summary instead of the default dashes.
+vim.o.foldnestmax = 10
+vim.o.foldcolumn = '1'
 vim.o.foldtext = ''
 
--- Limit nesting depth so deeply-nested files stay readable.
-vim.o.foldnestmax = 10
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('niketan-folding', { clear = true }),
+  callback = function(args)
+    local lang = vim.treesitter.language.get_lang(args.match)
+    if not lang then return end
 
--- Keep a narrow column to hint at foldable regions.
-vim.o.foldcolumn = '1'
+    local has_parser = pcall(vim.treesitter.language.add, lang)
+    if has_parser then
+      vim.wo.foldmethod = 'expr'
+      vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+    end
+  end,
+})

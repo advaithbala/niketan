@@ -46,6 +46,7 @@ Safe to re-run in either direction — bootstrap is idempotent, clean is idempot
 | ripgrep | 14.1.1 | Fast recursive search (`rg`) |
 | fd | 10.2.0 | Fast file finder (`fd`) |
 | fzf | latest | Fuzzy finder |
+| tree-sitter | 0.24.7 | Parser generator CLI (compiles Treesitter grammars for folding) |
 | kickstart.nvim | latest | Sane Neovim defaults with Telescope, LSP, Treesitter |
 | folding config | — | Treesitter-based code folding (`za` toggle, `zc` close, `zo` open) |
 | tmux.conf | — | Versioned tmux config (prefix `Ctrl+a`, vim keys, mouse) |

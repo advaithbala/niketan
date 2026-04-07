@@ -85,8 +85,33 @@ install_fzf() {
   touch "$stamp"
 }
 
+install_tree_sitter() {
+  local ver="${TS_VER:-0.24.7}"
+  local stamp="$STATE/tree-sitter-${ver}.ok"
+  [[ -f "$stamp" && -x "$BIN/tree-sitter" ]] && return 0
+
+  local name
+  if [[ "$OS" == linux ]]; then
+    [[ "$ARCH" == x86_64 ]] && name="tree-sitter-linux-x64.gz"
+    [[ "$ARCH" == arm64 ]]  && name="tree-sitter-linux-arm64.gz"
+  else
+    [[ "$ARCH" == x86_64 ]] && name="tree-sitter-macos-x64.gz"
+    [[ "$ARCH" == arm64 ]]  && name="tree-sitter-macos-arm64.gz"
+  fi
+  [[ -n "$name" ]] || die "Unsupported platform for tree-sitter: $OS/$ARCH"
+
+  local url="https://github.com/tree-sitter/tree-sitter/releases/download/v${ver}/${name}"
+  local gz="$STATE/$name"
+  log "Downloading tree-sitter $ver..."
+  download "$url" "$gz"
+  gunzip -f "$gz"
+  install -m0755 "$STATE/${name%.gz}" "$BIN/tree-sitter"
+  rm -f "$STATE/${name%.gz}"
+  touch "$stamp"
+}
+
 clean_tools() {
-  for b in rg fd fzf; do
+  for b in rg fd fzf tree-sitter; do
     [[ -L "$BIN/$b" || -f "$BIN/$b" ]] && rm -f "$BIN/$b" && log "Removed $BIN/$b"
   done
   [[ -e "$OPT/fzf" ]] && rm -rf "$OPT/fzf" && log "Removed $OPT/fzf"

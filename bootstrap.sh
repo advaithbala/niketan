@@ -36,7 +36,9 @@ install_neovim
 install_ripgrep
 install_fd
 install_fzf
+install_tree_sitter
 install_kickstart_nvim
+install_nvim_parsers
 install_nvim_folding
 install_tmux_conf
 write_env_snippet
