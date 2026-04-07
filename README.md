@@ -2,9 +2,26 @@
 
 Portable, user-local CLI development environment: everything niketan installs lands under `~/.local` (or `PREFIX`) without `sudo`.
 
-Your OS image should already include **git**, **tmux**, **ncurses** (`infocmp`), **unzip**, and **curl** or **wget** — typical developer setups on macOS and Linux. Niketan does not run package managers for those.
+Your OS image should already include **git**, **tmux**, **ncurses** (`infocmp`), and **curl** or **wget**. **unzip** is required only when bootstrap installs **Nerd Fonts** (local sessions). Niketan does not run package managers for those.
 
-It installs **Neovim 0.11**, **ripgrep**, **fd**, **fzf**, and **kickstart.nvim** into `PREFIX`, sets up **tmux.conf**, detects your shell, and wires up your rc.
+It installs **Neovim 0.11**, **ripgrep**, **fd**, **fzf**, and **kickstart.nvim** into `PREFIX`, **tmux.conf**, detects your shell, and wires up your rc. On a **local** (non-SSH) shell it also installs **JetBrains Mono Nerd Font** and an **Alacritty** profile; over **SSH** those are skipped because glyphs and terminal config belong on the machine where the window is drawn.
+
+### Local vs remote bootstrap
+
+| Where you run `./bootstrap.sh` | Fonts + Alacritty | Neovim, tools, tmux, shell |
+|--------------------------------|-------------------|----------------------------|
+| Laptop / normal terminal       | yes (default)     | yes                        |
+| Over SSH (`ssh user@host`)     | no                | yes                        |
+
+Override when detection is wrong (e.g. [Mosh](https://mosh.org/) may not set SSH vars):
+
+```bash
+NIKETAN_SESSION=local ./bootstrap.sh    # force fonts + Alacritty
+./bootstrap.sh --local
+./bootstrap.sh --remote               # force skip UI (headless CI, etc.)
+```
+
+`NIKETAN_SESSION` is `auto` (default), `local`, or `remote`.
 
 ## Quick start
 
@@ -54,6 +71,8 @@ Safe to re-run in either direction — bootstrap is idempotent, clean is idempot
 | tmux.conf | — | Versioned tmux config (prefix `Ctrl+a`, vim keys, mouse, catppuccin theme) |
 | TPM | latest | Tmux Plugin Manager |
 | catppuccin/tmux | v2.1.3 | Catppuccin Mocha theme for tmux |
+| Nerd Font (JetBrainsMono zip) | pinned | Icons + tmux powerline curves; flat install into your user font dir |
+| alacritty.toml | — | `~/.config/alacritty/alacritty.toml`: same font family, `builtin_box_drawing = false`, Mocha colors |
 
 Everything lives under `~/.local` (`bin/`, `opt/`, `state/niketan/`).
 
@@ -72,11 +91,15 @@ niketan/
 ├── bootstrap.sh        # orchestrator — install everything
 ├── clean.sh            # orchestrator — teardown everything
 ├── config/
+│   ├── alacritty/
+│   │   └── alacritty.toml # template → ~/.config/alacritty (font token filled by bootstrap)
 │   ├── nvim/
 │   │   └── folding.lua # Treesitter-based code folding
 │   └── tmux.conf       # tmux configuration
 └── lib/
     ├── common.sh       # shared helpers (log, download, detect OS/arch/shell)
+    ├── fonts.sh        # Nerd Font download + Alacritty family name mapping
+    ├── alacritty.sh    # Alacritty config install/clean
     ├── agents.sh       # CLI agent install/clean (cursor, etc.)
     ├── neovim.sh       # neovim + kickstart install/clean
     ├── tools.sh        # ripgrep, fd, fzf, tree-sitter install/clean

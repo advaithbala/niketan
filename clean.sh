@@ -25,6 +25,7 @@ source "$SCRIPT_DIR/lib/common.sh"
 source "$SCRIPT_DIR/lib/neovim.sh"
 source "$SCRIPT_DIR/lib/tools.sh"
 source "$SCRIPT_DIR/lib/shell.sh"
+source "$SCRIPT_DIR/lib/alacritty.sh"
 source "$SCRIPT_DIR/lib/tmux.sh"
 source "$SCRIPT_DIR/lib/agents.sh"
 
@@ -37,6 +38,7 @@ remove_shell_rc_block
 clean_env_snippet
 clean_tools
 clean_neovim
+clean_alacritty_conf
 clean_tmux_conf
 
 if ((${#AGENTS[@]} > 0)); then

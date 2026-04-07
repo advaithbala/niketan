@@ -6,6 +6,23 @@ NERD_FONTS_VER="${NERD_FONTS_VER:-3.3.0}"
 # Zip name must match a release asset (no spaces). Examples: JetBrainsMono, Hack.
 NERD_FONT_FAMILY="${NERD_FONT_FAMILY:-JetBrainsMono}"
 
+# Alacritty needs the exact font family string (see: fc-list on Linux, Font Book on macOS).
+# Override when using a custom NERD_FONT_FAMILY zip.
+nerd_font_alacritty_family() {
+  if [[ -n "${NERD_FONT_ALACRITTY_FAMILY:-}" ]]; then
+    printf '%s' "$NERD_FONT_ALACRITTY_FAMILY"
+    return 0
+  fi
+  case "${NERD_FONT_FAMILY:-JetBrainsMono}" in
+    JetBrainsMono) printf '%s' 'JetBrainsMono Nerd Font' ;;
+    Hack)          printf '%s' 'Hack Nerd Font' ;;
+    FiraCode)      printf '%s' 'FiraCode Nerd Font' ;;
+    *)
+      die "Set NERD_FONT_ALACRITTY_FAMILY to your font's exact family name (NERD_FONT_FAMILY=${NERD_FONT_FAMILY})"
+      ;;
+  esac
+}
+
 install_nerd_fonts() {
   if [[ ! "$NERD_FONT_FAMILY" =~ ^[a-zA-Z0-9_-]+$ ]]; then
     die "Invalid NERD_FONT_FAMILY (use alphanumeric, _, - only)"
@@ -32,13 +49,29 @@ install_nerd_fonts() {
 
   mkdir -p "$dest_dir"
   command -v unzip >/dev/null 2>&1 || die "unzip is required to install Nerd Fonts"
-  unzip -o -q "$tgz" -d "$dest_dir"
+
+  # Extract into a single family subdirectory so user font dirs stay tidy (nerd-fonts zips ship a top-level folder).
+  local extract_root="$STATE/nerd-fonts-extract/$NERD_FONT_FAMILY"
+  rm -rf "$extract_root"
+  mkdir -p "$extract_root" "$dest_dir"
+  unzip -o -q "$tgz" -d "$extract_root"
+
+  local ttf_count=0
+  while IFS= read -r f; do
+    [[ -f "$f" ]] || continue
+    install -m 0644 "$f" "$dest_dir/$(basename "$f")"
+    ttf_count=$((ttf_count + 1))
+  done < <(find "$extract_root" -name '*.ttf' -type f)
+  rm -rf "$extract_root"
+
+  if [[ "$ttf_count" -eq 0 ]]; then
+    die "No .ttf files found in Nerd Font archive — wrong NERD_FONT_FAMILY or corrupt zip."
+  fi
 
   if [[ "$OS" == linux ]] && command -v fc-cache >/dev/null 2>&1; then
     fc-cache -f "$dest_dir" 2>/dev/null || true
   fi
 
   touch "$marker"
-  log "Installed Nerd Font files under $dest_dir"
-  log "Set your terminal profile to a patched face (e.g. \"JetBrainsMono Nerd Font\" or \"JetBrainsMonoNerdFont-Regular\")."
+  log "Installed $ttf_count Nerd Font file(s) into $dest_dir"
 }
