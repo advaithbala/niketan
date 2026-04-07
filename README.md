@@ -49,7 +49,9 @@ Safe to re-run in either direction — bootstrap is idempotent, clean is idempot
 | tree-sitter | 0.24.7 | Parser generator CLI (compiles Treesitter grammars for folding) |
 | kickstart.nvim | latest | Sane Neovim defaults with Telescope, LSP, Treesitter |
 | folding config | — | Treesitter-based code folding (`za` toggle, `zc` close, `zo` open) |
-| tmux.conf | — | Versioned tmux config (prefix `Ctrl+a`, vim keys, mouse) |
+| tmux.conf | — | Versioned tmux config (prefix `Ctrl+a`, vim keys, mouse, catppuccin theme) |
+| TPM | latest | Tmux Plugin Manager |
+| catppuccin/tmux | v2.1.3 | Catppuccin Mocha theme for tmux |
 
 Everything lives under `~/.local` (`bin/`, `opt/`, `state/niketan/`).
 
@@ -75,9 +77,9 @@ niketan/
     ├── common.sh       # shared helpers (log, download, detect OS/arch/shell)
     ├── agents.sh       # CLI agent install/clean (cursor, etc.)
     ├── neovim.sh       # neovim + kickstart install/clean
-    ├── tools.sh        # ripgrep, fd, fzf install/clean
+    ├── tools.sh        # ripgrep, fd, fzf, tree-sitter install/clean
     ├── shell.sh        # env snippet + shell rc injection/removal
-    └── tmux.sh         # tmux.conf install/clean
+    └── tmux.sh         # tmux.conf, TPM, catppuccin install/clean
 ```
 
 ## Tested platforms
