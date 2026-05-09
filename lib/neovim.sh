@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install / clean Neovim and kickstart.nvim config.
 
-NVIM_VER="${NVIM_VER:-0.11.0}"
+NVIM_VER="${NVIM_VER:-0.12.2}"
 
 install_neovim() {
   local stamp="$STATE/nvim-${NVIM_VER}.ok"
