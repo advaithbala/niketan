@@ -35,20 +35,36 @@ if command -v locale >/dev/null 2>&1; then
   unset _niketan_try _niketan_lc _niketan_lang
 fi
 
-# Prompt: user@host:/full/path$  (green user@host, blue path)
-# Uses only standard ANSI colors (no 256/truecolor assumptions).
+# Terminal title (Alacritty etc.): always show the current machine's short hostname.
+# Vanilla ssh/login shells: OSC 0 on every prompt (no tmux required).
+# Inside tmux panes, allow-passthrough in tmux.conf lets the same OSC reach the outer window.
+_niketan_host() {
+  hostname -s 2>/dev/null || hostname 2>/dev/null || printf '%s' "${HOSTNAME:-unknown}"
+}
+_niketan_set_title() {
+  [ -t 1 ] || return 0
+  printf '\033]0;%s\007' "$(_niketan_host)"
+}
 if [ -n "$ZSH_VERSION" ]; then
   autoload -Uz colors && colors
   setopt PROMPT_SUBST
   PROMPT='%{$fg[green]%}%n@%m%{$reset_color%}:%{$fg[blue]%}%~%{$reset_color%}$ '
+  precmd_functions+=(_niketan_set_title)
 elif [ -n "$BASH_VERSION" ]; then
   PS1='\[\e[32m\]\u@\h\[\e[0m\]:\[\e[34m\]\w\[\e[0m\]\$ '
+  if [ -n "${PROMPT_COMMAND:-}" ]; then
+    PROMPT_COMMAND="_niketan_set_title; $PROMPT_COMMAND"
+  else
+    PROMPT_COMMAND="_niketan_set_title"
+  fi
+  _niketan_set_title
 fi
 SNIPPET
 
   # Patch in the actual BIN path (written at install time)
   sed -i.bak "s|__BIN__|$BIN|" "$f" && rm -f "${f}.bak"
-  log "Wrote $f"
+  append_ssh_connect_helpers "$f"
+  log "Wrote $f (includes ssh connect helper)"
 }
 
 inject_shell_rc() {

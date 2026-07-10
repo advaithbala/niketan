@@ -76,6 +76,16 @@ Safe to re-run in either direction — bootstrap is idempotent, clean is idempot
 
 Everything lives under `~/.local` (`bin/`, `opt/`, `state/niketan/`).
 
+### ssh `connect`
+
+Bootstrap appends an optional **`connect`** function to `~/.local/niketan-env.sh`. Numeric first argument expands to **`sival-minipc-<n>`**; otherwise the first argument is used as the full hostname.
+
+- With **no arguments after** the host, **`ssh -t`** runs **`tmux a`** (or **`tmux new-session`** if none).
+- Extra arguments omit tmux and run **`ssh`** with your remote command, as before.
+- **`CONNECT_SSH_PASSWORD`**: optional, read from **`~/.config/niketan/connect-secrets.sh`** (create once from **`config/connect-secrets.example.sh`**, **`chmod 600`**). Prefer **SSH keys**.
+
+This file stays under **`~/.config`** so **`./clean.sh`** does not remove your secrets (`./clean.sh` wipes **`~/.local/state/niketan`**, but not `~/.config/niketan`).
+
 ## CLI agents
 
 Agents are opt-in via `--agent <name>`. You can pass multiple `--agent` flags.
@@ -91,6 +101,7 @@ niketan/
 ├── bootstrap.sh        # orchestrator — install everything
 ├── clean.sh            # orchestrator — teardown everything
 ├── config/
+│   ├── connect-secrets.example.sh # template → ~/.config/niketan/connect-secrets.sh
 │   ├── alacritty/
 │   │   └── alacritty.toml # template → ~/.config/alacritty (font token filled by bootstrap)
 │   ├── nvim/
@@ -98,6 +109,7 @@ niketan/
 │   └── tmux.conf       # tmux configuration
 └── lib/
     ├── common.sh       # shared helpers (log, download, detect OS/arch/shell)
+    ├── connect.sh      # ssh `connect` helper + optional secrets install (see README)
     ├── fonts.sh        # Nerd Font download + Alacritty family name mapping
     ├── alacritty.sh    # Alacritty config install/clean
     ├── agents.sh       # CLI agent install/clean (cursor, etc.)
@@ -120,3 +132,4 @@ niketan/
 | Alias | Command |
 |-------|---------|
 | `n` | `nvim` |
+| `connect` | ssh helper (hosts `sival-minipc-<n>`, tmux attach, optional `sshpass`) |

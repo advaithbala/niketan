@@ -28,6 +28,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/common.sh"
 source "$SCRIPT_DIR/lib/neovim.sh"
 source "$SCRIPT_DIR/lib/tools.sh"
+source "$SCRIPT_DIR/lib/connect.sh"
 source "$SCRIPT_DIR/lib/shell.sh"
 source "$SCRIPT_DIR/lib/fonts.sh"
 source "$SCRIPT_DIR/lib/alacritty.sh"
@@ -59,6 +60,7 @@ else
 fi
 install_tmux_conf
 write_env_snippet
+install_connect_secrets_example
 inject_shell_rc
 
 # Empty "${AGENTS[@]}" under `set -u` errors on some Bash versions; guard instead.
